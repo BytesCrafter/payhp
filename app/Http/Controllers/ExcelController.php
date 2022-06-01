@@ -84,12 +84,12 @@ class ExcelController extends Controller
         return $data;
     }
 
-    protected function save_payslip($data, $template, $paydate, $payriod) {
+    protected function save_payslip($data, $paydate, $payriod) {
 
         $compute = $this->write_payslip($data);
 
         //Write to template
-        $template_spreadsheet   = IOFactory::load($template->getRealPath());
+        $template_spreadsheet   = IOFactory::load(storage_path('system/template.xls'));
         $template_activesheet   = $template_spreadsheet->getActiveSheet(); //use for edit.
 
         $template_activesheet->setCellValue('E5', "Pay Period ".$payriod);
@@ -163,14 +163,12 @@ class ExcelController extends Controller
         $this->validate($request, [
             'paydate' => 'required|max:50',
             'payriod' => 'required|max:50',
-            'master' => 'required|file|mimes:xls,xlsx',
-            'template' => 'required|file|mimes:xls,xlsx'
+            'master' => 'required|file|mimes:xls,xlsx'
         ]);
 
         $paydate = $request->input('paydate');
         $payriod = $request->input('payriod');
         $excel = $request->file('master');
-        $template_excel = $request->file('template');
 
         try {
             $spreadsheet    = IOFactory::load($excel->getRealPath());
@@ -219,7 +217,7 @@ class ExcelController extends Controller
                         'other' => $sheet[24]
                     );
 
-                    $filename = $this->save_payslip($current, $template_excel, $paydate, $payriod);
+                    $filename = $this->save_payslip($current, $paydate, $payriod);
                     $zip->addFile( storage_path('app/'.$paydate.'/'.$filename.'.pdf'), $filename.'.pdf' );
                 }
                 $counter ++;

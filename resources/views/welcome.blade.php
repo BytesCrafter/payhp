@@ -52,21 +52,11 @@
                                     <label>Select File to Upload <small class="warning text-muted">{{__('Please upload only Excel (.xlsx or .xls) files')}}</small></label>
 
                                     <div class="form-group">
-                                        <label for="master">Master</label>
+                                        <label for="master">Master File</label>
                                         <input type="file" required class="form-control" name="master" id="master" >
                                         @if ($errors->has('master'))
                                             <p class="text-right mb-0">
                                                 <small class="danger text-muted" id="file-error">{{ $errors->first('master') }}</small>
-                                            </p>
-                                        @endif
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="template">Template</label>
-                                        <input type="file" required class="form-control" name="template" id="template">
-                                        @if ($errors->has('template'))
-                                            <p class="text-right mb-0">
-                                                <small class="danger text-muted" id="file-error">{{ $errors->first('template') }}</small>
                                             </p>
                                         @endif
                                     </div>
