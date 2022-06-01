@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExcelController;
+use App\Http\Controllers\PayslipController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [ExcelController::class, 'index']);
+Route::post('/import', [ExcelController::class, 'importData']);
+Route::post('/export', [ExcelController::class, 'exportData']);
+
+Route::get('/payslip', [PayslipController::class, 'check']);
