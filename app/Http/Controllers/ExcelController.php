@@ -9,14 +9,13 @@ use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use App\Models\Payslip;
 use App\Libraries\PayHP;
+use Ramsey\Uuid\Uuid;
 
 class ExcelController extends Controller
 {
 
-    /**
-        * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-        */
     function index() {
         $data = array();
         return view('welcome', compact('data'));
@@ -25,6 +24,14 @@ class ExcelController extends Controller
     function downloadMaster() {
         $master = storage_path('system/master.xlsx');
         return response()->download($master);
+    }
+
+    protected function createDir($subdir) {
+        $fulldir = storage_path($subdir.'/');
+        if (!file_exists($fulldir)) {
+            mkdir($fulldir, 0700, true);
+        }
+        return $fulldir;
     }
 
     protected function write_payslip($paydata) {
@@ -89,13 +96,12 @@ class ExcelController extends Controller
         return $data;
     }
 
-    protected function save_payslip($data, $paydate, $payriod) {
+    protected function save_payslip($data, $paydate, $payriod, $dirpath) {
 
         $compute = $this->write_payslip($data);
 
-        //Write to template
         $template_spreadsheet   = IOFactory::load(storage_path('system/template.xls'));
-        $template_activesheet   = $template_spreadsheet->getActiveSheet(); //use for edit.
+        $template_activesheet   = $template_spreadsheet->getActiveSheet(); //use for edit. other page.
 
         $template_activesheet->setCellValue('E5', "Pay Period ".$payriod);
         $template_activesheet->setCellValue('E7', $data['fullname']);
@@ -117,7 +123,6 @@ class ExcelController extends Controller
         $template_activesheet->setCellValue('H21', $data['sss']);
         $template_activesheet->setCellValue('H22', $data['phealth']);
         $template_activesheet->setCellValue('H23', $data['pagibig']);
-        //$template_activesheet->setCellValue('H7', $data['hmo']);
         $template_activesheet->setCellValue('H24', $compute['hmo_other']);
 
         $template_activesheet->setCellValue('F26', $compute['gross_pay']);
@@ -128,7 +133,6 @@ class ExcelController extends Controller
         $template_activesheet->setCellValue('E28', $data['bankname']);
         $template_activesheet->setCellValue('E29', $data['fullname']);
         $template_activesheet->setCellValue('E30', $data['banknum']);
-
 
         // $template_spreadsheet->getDefaultStyle()->applyFromArray(
         //     [
@@ -141,19 +145,11 @@ class ExcelController extends Controller
         //     ]
         // );
 
-        //$writer = new Xlsx($template_spreadsheet);
-        //$writer->save($path = storage_path('app/'.'test.xlsx'));
-        //return response()->download($path);
-
         $xmlWriter = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($template_spreadsheet,'Mpdf');
         $xmlWriter->writeAllSheets();
         //$xmlWriter->setFooter("AHM Outsourcing Inc");
         $username = substr($data['email'], 0, strpos($data['email'], "@"));
-        if (!file_exists(storage_path('app/'.$paydate.'/'))) {
-            mkdir(storage_path('app/'.$paydate.'/'), 0700);
-        }
-        $xmlWriter->save($path = storage_path('app/'.$paydate.'/'.$username.'.pdf'));
-        //return response()->download($path);
+        $xmlWriter->save( $dirpath.$username.'.pdf' );
         return $username;
     }
 
@@ -177,9 +173,13 @@ class ExcelController extends Controller
             $counter       = 1;
             $startRow       = 4;
 
-            $zip_file = storage_path('app/'.$paydate.'.zip');
-            $zip = new \ZipArchive();
-            $zip->open($zip_file, \ZipArchive::CREATE || \ZipArchive::OVERWRITE);
+            $group_id = Uuid::uuid4()->toString();
+            $dirpath = $this->createDir('app/payroll/'.$group_id);
+
+            $zip_name = "Payroll - ".$payriod;
+            $zip_filepath = $dirpath.$zip_name.'.zip';
+            $zipArchieve = new \ZipArchive();
+            $zipArchieve->open($zip_filepath, \ZipArchive::CREATE || \ZipArchive::OVERWRITE);
 
             foreach($datasheet as $sheet) {
                 if($counter >= $startRow && $sheet[0] == 'x') {
@@ -216,15 +216,60 @@ class ExcelController extends Controller
                         'other' => $sheet[24]
                     );
 
-                    $filename = $this->save_payslip($current, $paydate, $payriod);
-                    $zip->addFile( storage_path('app/'.$paydate.'/'.$filename.'.pdf'), $filename.'.pdf' );
+                    //Save to model.
+                    $payslip = new Payslip();
+                    $insertid = $payslip->store([
+                        'uuid' => Uuid::uuid4()->toString(),
+                        'group_id' => $group_id,
+
+                        'fullname' => $sheet[1],
+                        'fullname' => $sheet[1],
+                        'email' => $sheet[2],
+
+                        'payriod' => $payriod,
+                        'paydate' => $paydate,
+
+                        'title' => $sheet[3],
+                        'department' => $sheet[4],
+                        'directorate' => $sheet[5],
+
+                        'bankname' => $sheet[6],
+                        'banknum' => $sheet[7],
+
+                        'monthly' => $sheet[8],
+                        'allowance' => $sheet[9],
+                        'deduction' => $sheet[10],
+                        'incentive' => $sheet[11],
+                        'nightdiff' => $sheet[12],
+
+                        'reghdpay' => $sheet[13],
+                        'spchdpay' => $sheet[14],
+                        'regot' => $sheet[15],
+                        'rstot' => $sheet[16],
+                        'reghdot' => $sheet[17],
+                        'spchdot' => $sheet[18],
+
+                        'tax' => $sheet[19],
+                        'sss' => $sheet[20],
+                        'phealth' => $sheet[21],
+                        'pagibig' => $sheet[22],
+                        'hmo' => $sheet[23],
+                        'other' => $sheet[24],
+
+                        'generated_by' => NULL, //TODO
+                        'status' => $sheet[0] ? '1':'0'
+                    ]);
+
+                    $filename = $this->save_payslip($current, $paydate, $payriod, $dirpath, $group_id);
+                    $filename = $filename.".pdf"; //add the pdf extention.
+                    $zipArchieve->addFile( $dirpath.$filename, $filename );
                 }
                 $counter ++;
             }
 
-            $zip->close();
+            $zipArchieve->close();
 
-            return response()->download($zip_file);
+            return response()->download($zip_filepath)->deleteFileAfterSend(true);
 
         } catch (Exception $e) {
 
@@ -235,8 +280,9 @@ class ExcelController extends Controller
         return back()->withSuccess('Great! Data has been successfully uploaded.');
     }
 
-    function bulkSend(){
-        //Received zip file.
+    function bulkSend(Request $request){
+
+        //Received ccmail and zip file.
 
         //Unzip to temporary location.
 
