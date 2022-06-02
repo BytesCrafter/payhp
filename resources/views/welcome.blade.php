@@ -10,16 +10,31 @@
     <body>
         <div class="container">
 
-            <div class="card-header bg-secondary dark bgsize-darken-4 white card-header">
+            <div class="card-header bg-primary dark bgsize-darken-4 white card-header">
                 <h4 class="text-white">PAS - PAYSLIP AUTOMATION SYSTEM</h4>
             </div>
 
-            <div class="row justify-content-centre" style="margin-top: 4%">
+            <div class="row justify-content-centre" style="margin-top: 30px;">
                 <div class="col-md-12">
                     <div class="card">
 
-                        <div class="card-header bgsize-primary-4 white card-header">
-                            <h4 class="card-title">Import Excel Data</h4>
+                        <div class="card-header bgsize-primary card-header">
+                            <h4 class="card-title">STEP 1: PAYSLIP SUMMARY - Download the master file and populate with payroll data.</h4>
+                        </div>
+
+                        <div class="card-body" style="text-align: center">
+                            <a type="button" class="btn btn-info" href="download" target="_blank">Download Master File</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-centre" style="margin-top: 30px;">
+                <div class="col-md-12">
+                    <div class="card">
+
+                        <div class="card-header bgsize-primary card-header">
+                            <h4 class="card-title">STEP 2: PAYSLIP GENERATOR - Upload the processed master file and click on bulk generate.</h4>
                         </div>
 
                         <div class="card-body">
@@ -35,7 +50,7 @@
 
                             @endif
 
-                            <form action="{{url("import")}}" method="post" enctype="multipart/form-data">
+                            <form action="{{url("generate")}}" method="post" enctype="multipart/form-data">
                                 @csrf
                                 <fieldset>
 
@@ -49,7 +64,7 @@
                                         <input type="text" required class="form-control" name="paydate" id="paydate" placeholder="January 25, 2022">
                                     </div>
 
-                                    <label>Select File to Upload <small class="warning text-muted">{{__('Please upload only Excel (.xlsx or .xls) files')}}</small></label>
+                                    <label>Select File to Upload <small class="warning text-muted">{{__('Please upload only Zip (.zip) files')}}</small></label>
 
                                     <div class="form-group">
                                         <label for="master">Master File</label>
@@ -61,8 +76,8 @@
                                         @endif
                                     </div>
 
-                                    <div class="input-group-append" id="button-addon2">
-                                        <button class="btn btn-primary square" type="submit"><i class="ft-upload mr-1"></i> Upload</button>
+                                    <div class="input-group-append" id="button-addon2" style="text-align: right; display: block;">
+                                        <button class="btn btn-primary square" type="submit"><i class="ft-upload mr-1"></i> Bulk Generate</button>
                                     </div>
 
                                 </fieldset>
@@ -73,75 +88,59 @@
                 </div>
             </div>
 
-            {{-- <div class="row justify-content-left" style="margin-top: 50px;">
+            <div class="row justify-content-centre" style="margin-top: 30px;">
                 <div class="col-md-12">
                     <div class="card">
-                        <div class="card-header bgsize-primary-4 white card-header">
-                            <h4 class="card-title">Employee Payroll</h4>
+
+                        <div class="card-header bgsize-primary card-header">
+                            <h4 class="card-title">STEP 3: PAYSLIP MAILMAN - After cross-checking the generated payslip, use this to send payslip.</h4>
                         </div>
 
                         <div class="card-body">
-                            <div class="pull-right">
-                                <a href="{{url("export")}}" class="btn btn-primary" style="margin-left:85%">Download All Payslips</a>
-                            </div>
 
-                            <div class=" card-content table-responsive">
-                                <table id="example" class="table table-striped table-bordered" style="width:100%">
+                            @if ($message = Session::get('success'))
 
-                                    <thead>
-                                        <th>Customer Name</th>
-                                        <th>Gender</th>
-                                        <th>Address</th>
-                                        <th>City</th>
-                                        <th>Postal Code</th>
-                                        <th>Country</th>
-                                    </thead>
+                                <div class="alert alert-success alert-block">
+                                    <button type="button" class="close" data-dismiss="alert">×</button>
+                                    <strong>{{ $message }}</strong>
+                                </div>
 
-                                    <tbody>
+                                <br>
 
-                                        @if(!empty($data) && $data->count())
+                            @endif
 
-                                        @foreach($data as $row)
+                            <form action="{{url("send")}}" method="post" enctype="multipart/form-data">
+                                @csrf
+                                <fieldset>
 
-                                        <tr>
+                                    <div class="form-group">
+                                        <label for="ccmail">Email CC <small class="warning text-muted">{{__('Secparate multiple emails with a comma.')}}</small></label>
+                                        <input type="text" required class="form-control" name="ccmail" id="ccmail" placeholder="juan@example.com,mark@example.com">
+                                    </div>
 
-                                            <td>{{ $row->CustomerName }}</td>
+                                    <label>Select File to Upload <small class="warning text-muted">{{__('Please upload only Excel (.xlsx or .xls) files')}}</small></label>
 
-                                            <td>{{ $row->Gender }}</td>
-
-                                            <td>{{ $row->Address }}</td>
-
-                                            <td>{{ $row->City }}</td>
-
-                                            <td>{{ $row->PostalCode }}</td>
-
-                                            <td>{{ $row->Country }}</td>
-
-                                        </tr>
-
-                                        @endforeach
-
-                                        @else
-
-                                        <tr>
-
-                                            <td colspan="10">There are no data.</td>
-
-                                        </tr>
-
+                                    <div class="form-group">
+                                        <label for="zipfile">Zip File</label>
+                                        <input type="file" required class="form-control" name="zipfile" id="zipfile" >
+                                        @if ($errors->has('zipfile'))
+                                            <p class="text-right mb-0">
+                                                <small class="danger text-muted" id="file-error">{{ $errors->first('zipfile') }}</small>
+                                            </p>
                                         @endif
+                                    </div>
 
+                                    <div class="input-group-append" id="button-addon2" style="text-align: right; display: block;">
+                                        <button class="btn btn-warning square" type="submit"><i class="ft-upload mr-1"></i> Bulk Send</button>
+                                    </div>
 
+                                </fieldset>
+                            </form>
 
-
-                                    </tbody>
-
-                                </table>
-                            </div>
                         </div>
                     </div>
                 </div>
-            </div> --}}
+            </div>
 
             <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
             {{-- <script>

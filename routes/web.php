@@ -16,7 +16,6 @@ use App\Http\Controllers\PayslipController;
 */
 
 Route::get('/', [ExcelController::class, 'index']);
-Route::post('/import', [ExcelController::class, 'importData']);
-Route::post('/export', [ExcelController::class, 'exportData']);
-
-Route::get('/payslip', [PayslipController::class, 'check']);
+Route::get('/download', [ExcelController::class, 'downloadMaster']);
+Route::post('/generate', [ExcelController::class, 'bulkGenerate']);
+Route::post('/send', [ExcelController::class, 'bulkSend']);

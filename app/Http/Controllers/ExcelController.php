@@ -18,8 +18,13 @@ class ExcelController extends Controller
         * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
         */
     function index() {
-        $data = [];//DB::table('tbl_customer')->orderBy('CustomerID', 'DESC')->paginate(5);
+        $data = array();
         return view('welcome', compact('data'));
+    }
+
+    function downloadMaster() {
+        $master = storage_path('system/master.xlsx');
+        return response()->download($master);
     }
 
     protected function write_payslip($paydata) {
@@ -152,13 +157,7 @@ class ExcelController extends Controller
         return $username;
     }
 
-    /**
-        * @param Request $request
-        * @return \Illuminate\Http\RedirectResponse
-        * @throws \Illuminate\Validation\ValidationException
-        * @throws \PhpOffice\PhpSpreadsheet\Exception
-        */
-    function importData(Request $request){
+    function bulkGenerate(Request $request){
 
         $this->validate($request, [
             'paydate' => 'required|max:50',
@@ -236,58 +235,16 @@ class ExcelController extends Controller
         return back()->withSuccess('Great! Data has been successfully uploaded.');
     }
 
-    /**
-    * @param $customer_data
-    */
-    public function ExportExcel($customer_data){
+    function bulkSend(){
+        //Received zip file.
 
-       ini_set('max_execution_time', 0);
-       ini_set('memory_limit', '4000M');
+        //Unzip to temporary location.
 
-       try {
+        //Queue all payslip for sending.
 
-           $spreadSheet = new Spreadsheet();
-           $spreadSheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(20);
-           $spreadSheet->getActiveSheet()->fromArray($customer_data);
+        //Delete all temporary files and zip.
 
-           $Excel_writer = new Xls($spreadSheet);
-
-           header('Content-Type: application/vnd.ms-excel');
-           header('Content-Disposition: attachment;filename="Customer_ExportedData.xls"');
-           header('Cache-Control: max-age=0');
-           ob_end_clean();
-
-           $Excel_writer->save('php://output');
-           exit();
-
-       } catch (Exception $e) {
-           return;
-       }
-    }
-
-    /**
-    *This function loads the customer data from the database then converts it
-    * into an Array that will be exported to Excel
-    */
-
-    function exportData(){
-
-       $data = DB::table('tbl_customer')->orderBy('CustomerID', 'DESC')->get();
-       $data_array [] = array("CustomerName","Gender","Address","City","PostalCode","Country");
-
-       foreach($data as $data_item) {
-
-           $data_array[] = array(
-               'CustomerName' =>$data_item->CustomerName,
-               'Gender' => $data_item->Gender,
-               'Address' => $data_item->Address,
-               'City' => $data_item->City,
-               'PostalCode' => $data_item->PostalCode,
-               'Country' =>$data_item->Country
-           );
-       }
-
-       $this->ExportExcel($data_array);
+        //Return all emails successfully send.
    }
 
 }
