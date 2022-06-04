@@ -9,9 +9,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Border;
-use App\Models\Payslip;
+use App\Classes\Payslip;
 use App\Libraries\PayHP;
 use Ramsey\Uuid\Uuid;
+use App\Jobs\PayslipJob;
 
 class ExcelController extends Controller
 {
@@ -278,6 +279,23 @@ class ExcelController extends Controller
         }
 
         return back()->withSuccess('Great! Data has been successfully uploaded.');
+    }
+
+    function sendTestMail(Request $request) {
+
+        //https://www.zealousweb.com/3-easy-steps-to-implement-laravel-queue/
+        //PayslipJob::dispatch($options)->delay(now()->addMinutes(10));
+
+        $emailJob = (new PayslipJob())->setPayslip(new Payslip(array(
+            "email" => "bytescrafter@gmail.com",
+            "subject" => "Oh hello Mark!",
+            "body" => "Personalized Message from Script",
+            "attachments" => [storage_path('system')."/master.xlsx", storage_path('system')."/template.xls"],
+            "cc" => ["cc@bytescrafter.net"],
+            "bcc" => ["bcc@bytescrafter.net"],
+            "replyto" => ["replyto@bytescrafter.net"]
+        )));
+        dispatch($emailJob);
     }
 
     function bulkSend(Request $request){

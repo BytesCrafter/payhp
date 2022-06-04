@@ -19,3 +19,5 @@ Route::get('/', [ExcelController::class, 'index']);
 Route::get('/download', [ExcelController::class, 'downloadMaster']);
 Route::post('/generate', [ExcelController::class, 'bulkGenerate']);
 Route::post('/send', [ExcelController::class, 'bulkSend']);
+
+Route::get('/sendmail', [ExcelController::class, 'sendTestMail']);
