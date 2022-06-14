@@ -22,6 +22,7 @@
     class AmountWords {
 
         public function convertNumber($number) {
+            $number = number_format((float)$number, 2, '.', '');
             list($integer, $fraction) = explode(".", (string) $number);
 
             $output = "";
