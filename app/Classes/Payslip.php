@@ -11,8 +11,11 @@
         public $body = "";
         public $attachments = [];
 
-        public function __construct(array $payslip)
+        public function __construct(array $payslip = null)
         {
+            if($payslip == null)
+                return;
+
             $this->email = isset($payslip["email"])?$payslip["email"]:"";
             $this->subject = isset($payslip["subject"])?$payslip["subject"]:"";
             $this->cc = isset($payslip["cc"])?$payslip["cc"]:"";
@@ -24,5 +27,9 @@
 
         public function toArray() {
             return $this->current->toArray();
+        }
+
+        public function store(array $payslip) {
+            return false; //Save to database
         }
     }

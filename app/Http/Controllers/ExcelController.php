@@ -13,6 +13,7 @@ use App\Classes\Payslip;
 use App\Libraries\PayHP;
 use Ramsey\Uuid\Uuid;
 use App\Jobs\PayslipJob;
+use App\Libraries\AmountWords;
 
 class ExcelController extends Controller
 {
@@ -129,6 +130,7 @@ class ExcelController extends Controller
         $template_activesheet->setCellValue('F26', $compute['gross_pay']);
         $template_activesheet->setCellValue('H26', $compute['total_deductions']);
         $template_activesheet->setCellValue('F28', $compute['net_pay']);
+        $template_activesheet->setCellValue('F29', (new AmountWords())->convertNumber($compute["net_pay"]));
 
         $template_activesheet->setCellValue('E27', $paydate);
         $template_activesheet->setCellValue('E28', $data['bankname']);
