@@ -13,7 +13,8 @@
         "laravel/tinker": "^2.5",
         "mpdf/mpdf": "^8.1",
         "phpoffice/phpspreadsheet": "^1.23",
-        "ramsey/uuid": "^4.2"
+        "ramsey/uuid": "^4.2",
+        "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
