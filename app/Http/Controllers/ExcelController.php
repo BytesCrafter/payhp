@@ -16,6 +16,9 @@ use App\Jobs\PayslipJob;
 use App\Libraries\AmountWords;
 use App\Traits\UserTrait;
 use Illuminate\Support\Facades\Auth;
+USE App\Models\User;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\UserController;
 
 class ExcelController extends Controller
 {
@@ -29,6 +32,15 @@ class ExcelController extends Controller
 
     function index(Request $request) {
         if( !auth()->check() ) {
+            return redirect('signin');
+        }
+
+        $this->curUser = auth()->user();
+
+        $access = (new User())->get_access_info( $this->curUser->id );
+        $access->permissions = unserialize( $access->permissions );
+        if( $access->permissions['can_use_payroll'] !== "1" ) {
+            (new UserController())->logout();
             return redirect('signin');
         }
 

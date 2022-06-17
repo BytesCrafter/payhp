@@ -68,7 +68,11 @@ class UserController extends Controller
             return back()->with('error', 'User not found!');
         }
 
-        //TODO: Check if has access on PAS
+        $access = (new User())->get_access_info( $user->id );
+        $access->permissions = unserialize( $access->permissions );
+        if( !isset($access->permissions['can_use_payroll']) && !$access->permissions['can_use_payroll'] ) {
+            return back()->with('error', 'Dont have permission!');
+        }
 
         //VERIFY PASSWORD
         $hash = $user->password;
