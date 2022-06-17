@@ -8,22 +8,39 @@
         {{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" /> --}}
     </head>
     <body>
-        <div class="container">
-
-            <div class="card-header bg-primary dark bgsize-darken-4 white card-header">
-                <h4 class="text-white">PAS - PAYSLIP AUTOMATION SYSTEM</h4>
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top bg-dark">
+            <div class="container">
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <a class="navbar-brand" href="#">ERPat PAS - Hi! {{ $curUser->first_name }}</a>
+              <div class="collapse d-flex" id="navbarTogglerDemo03">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{{url('/logout')}}">Logout</a>
+                  </li>
+                </ul>
+              </div>
             </div>
+        </nav>
+        {{-- <div class="container">
+            Test 1: {{$curUser}}
+        </div> --}}
+        <div class="container">
 
             <div class="row justify-content-centre" style="margin-top: 30px;">
                 <div class="col-md-12">
                     <div class="card">
 
-                        <div class="card-header bgsize-primary card-header">
-                            <h4 class="card-title">STEP 1: PAYSLIP SUMMARY - Download the master file and populate with payroll data.</h4>
+                        <div class="card-header bg-secondary">
+                            <h5 class="card-title text-center text-white">GETTING STARTED! Download the master file and populate with payroll data.</h5>
                         </div>
 
                         <div class="card-body" style="text-align: center">
-                            <a type="button" class="btn btn-info" href="download" target="_blank">Download Master File</a>
+                            <div class="alert alert-info" role="alert">
+                                Please download this master file then populate with the data.
+                            </div>
+                            <a type="button" class="btn btn-success" href="download" target="_blank">Download Master File</a>
                         </div>
                     </div>
                 </div>
@@ -33,8 +50,8 @@
                 <div class="col-md-12">
                     <div class="card">
 
-                        <div class="card-header bgsize-primary card-header">
-                            <h4 class="card-title">STEP 2: PAYSLIP GENERATOR - Upload the processed master file and click on bulk generate.</h4>
+                        <div class="card-header bg-secondary">
+                            <h5 class="card-title text-center text-white">STEP 1: PAYSLIP GENERATOR - Upload the processed master file and click on bulk generate.</h5>
                         </div>
 
                         <div class="card-body">
@@ -92,8 +109,8 @@
                 <div class="col-md-12">
                     <div class="card">
 
-                        <div class="card-header bgsize-primary card-header">
-                            <h4 class="card-title">STEP 3: PAYSLIP MAILMAN - After cross-checking the generated payslip, use this to send payslip.</h4>
+                        <div class="card-header bg-secondary">
+                            <h5 class="card-title text-center text-white">STEP 2: PAYSLIP MAILMAN - After cross-checking the generated payslip, use this to send payslip.</h5>
                         </div>
 
                         <div class="card-body">

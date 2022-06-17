@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExcelController;
-use App\Http\Controllers\PayslipController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,9 +15,22 @@ use App\Http\Controllers\PayslipController;
 |
 */
 
-Route::get('/', [ExcelController::class, 'index']);
-Route::get('/download', [ExcelController::class, 'downloadMaster']);
-Route::post('/generate', [ExcelController::class, 'bulkGenerate']);
-Route::post('/send', [ExcelController::class, 'bulkSend']);
+Route::get('/', function () {
+    if(auth()->check()) {
+        return redirect('/home');
+    }
+    return redirect('/signin');
+});
 
-Route::get('/sendmail', [ExcelController::class, 'sendTestMail']);
+Route::get('/signin', [UserController::class, 'signin']);
+Route::post('/login', [UserController::class, 'login']);
+
+Route::group(['middleware' => ['api']], function () {
+    Route::get('/home', [ExcelController::class, 'index']);
+    Route::get('/logout', [UserController::class, 'logout']);
+
+    Route::get('/download', [ExcelController::class, 'downloadMaster']);
+    Route::post('/generate', [ExcelController::class, 'bulkGenerate']);
+    Route::post('/send', [ExcelController::class, 'bulkSend']);
+    Route::get('/sendmail', [ExcelController::class, 'sendTestMail']);
+});

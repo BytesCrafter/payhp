@@ -19,7 +19,11 @@ class UserController extends Controller
         $this->curUser = auth()->user();
     }
 
-    public function index() {
+    public function signin() {
+        if( auth()->check() ) {
+            return redirect('home');
+        }
+
         return view('signin');
     }
 
@@ -70,12 +74,10 @@ class UserController extends Controller
         $hash = $user->password;
         if ((strlen($hash) === 60 && password_verify($password, $hash)) || $hash === md5($password)) {
 
-            if($token = $this->getToken($username, $password)) {
-                \Log::info($token);
-                $cookie = cookie('jwt', $token, 60 * 1); //1 hour
-                return response()->withCookie($cookie);
+            if($token = $this->getToken($user->uuid, $password)) {
+                $cookie = cookie('erpat-pas-jwt', $token, 60 * 1); //1 hour
+                return back()->with('success', 'Welcome')->withCookie($cookie);
             }
-            \Log::info($token);
         }
 
         return back()->with('error', 'Authentication invalid!');
@@ -134,40 +136,8 @@ class UserController extends Controller
     public function logout()
     {
         auth()->logout();
-        return response()->json( array("success"=>true,"message"=>"Successfully logged out.") );
-    }
-
-    public function change_pass(Request $request) {
-
-        $validator = Validator::make($request->all(), [
-            'oldpass'=>'required',
-            'newpass'=>'required',
-            'confirmpass'=>'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(array("success"=>false,"message"=>"Web request invalid!"));
-        }
-
-        $oldpass = $request->input('oldpass');
-        $newpass = $request->input('newpass');
-        $confirmpass = $request->input('confirmpass');
-
-        //CONFIRM PASSWORD
-        if($newpass !== $confirmpass) {
-            return response()->json(array("success"=>false,"message"=>"New and Confirm password does not match."));
-        }
-
-        //VERIFY PASSWORD
-        $hash = $this->curUser->password;
-        if ((strlen($hash) === 60 && password_verify($oldpass, $hash)) || $hash === md5($oldpass)) {
-
-            if($query = (new User())->changePassword($this->curUser->id, $newpass)) {
-                return response()->json(array("success"=>true,"message"=>"You've successfully changed your password!"));
-            }
-        }
-
-        return response()->json(array("success"=>false,"message"=>"Old password provided is incorrect!"));
+        \Cookie::forget('erpat-pas-jwt');
+        return redirect('signin');
     }
 
     /**

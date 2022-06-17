@@ -14,13 +14,27 @@ use App\Libraries\PayHP;
 use Ramsey\Uuid\Uuid;
 use App\Jobs\PayslipJob;
 use App\Libraries\AmountWords;
+use App\Traits\UserTrait;
+use Illuminate\Support\Facades\Auth;
 
 class ExcelController extends Controller
 {
+    use UserTrait;
 
-    function index() {
-        $data = array();
-        return view('welcome', compact('data'));
+    protected $curUser = null;
+    public function __construct() {
+        //$this->middleware('user.permit');
+        $this->curUser = auth()->user();
+    }
+
+    function index(Request $request) {
+        if( !auth()->check() ) {
+            return redirect('signin');
+        }
+
+        return view('home')
+            ->with('curUser',  Auth::user())
+            ->with('test',  'hello world');
     }
 
     function downloadMaster() {
