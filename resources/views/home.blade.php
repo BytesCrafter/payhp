@@ -47,7 +47,7 @@
             </div>
 
             <div class="row justify-content-centre" style="margin-top: 30px;">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <div class="card">
 
                         <div class="card-header bg-secondary">
@@ -103,10 +103,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="row justify-content-centre" style="margin-top: 30px;">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <div class="card">
 
                         <div class="card-header bg-secondary">
@@ -135,6 +132,11 @@
                                         <input type="text" required class="form-control" name="ccmail" id="ccmail" placeholder="juan@example.com,mark@example.com">
                                     </div>
 
+                                    <div class="form-group">
+                                        <label for="bccmail">Email BCC <small class="warning text-muted">{{__('Secparate multiple emails with a comma.')}}</small></label>
+                                        <input type="text" required class="form-control" name="bccmail" id="bccmail" placeholder="juan@example.com,mark@example.com">
+                                    </div>
+
                                     <label>Select File to Upload <small class="warning text-muted">{{__('Please upload only Excel (.xlsx or .xls) files')}}</small></label>
 
                                     <div class="form-group">
@@ -148,7 +150,7 @@
                                     </div>
 
                                     <div class="input-group-append" id="button-addon2" style="text-align: right; display: block;">
-                                        <button class="btn btn-warning square" type="submit"><i class="ft-upload mr-1"></i> Bulk Send</button>
+                                        <button class="btn btn-warning square" type="submit"><i class="ft-upload mr-1"></i> Schedule Mail</button>
                                     </div>
 
                                 </fieldset>
