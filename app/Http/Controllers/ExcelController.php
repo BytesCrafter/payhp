@@ -58,7 +58,7 @@ class ExcelController extends Controller
             //Add basic rates
             $payslip->add_basic_rate( $paydata['monthly'] ); //INPUT
             $data["hourly_rate"] = $payslip->hourly_rate();
-            //$data["basic_pay"] = $payslip->basic_pay();
+            $data["basic_salary"] = $payslip->monthly_rate;
 
             //Add employee allowance
             $payslip->add_monthly_allowance($paydata['allowance']); //INPUT
@@ -121,7 +121,7 @@ class ExcelController extends Controller
 
         $template_activesheet->setCellValue('E5', "Pay Period ".$payriod);
         $template_activesheet->setCellValue('E7', $data['fullname']);
-        $template_activesheet->setCellValue('E8', $compute['hourly_rate']);
+        $template_activesheet->setCellValue('E8', $compute['basic_salary']);
 
         $template_activesheet->setCellValue('H7', $data['title']);
         $template_activesheet->setCellValue('H8', $data['department']);
