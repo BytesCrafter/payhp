@@ -160,6 +160,9 @@ class ExcelController extends Controller
         $template_activesheet->setCellValue('E29', $data['fullname']);
         $template_activesheet->setCellValue('E30', $data['banknum']);
 
+        $template_activesheet->setCellValue('C3', $data['payinc']);
+        $template_activesheet->setCellValue('F32', $data['payman']);
+
         // $template_spreadsheet->getDefaultStyle()->applyFromArray(
         //     [
         //         'borders' => [
@@ -170,6 +173,11 @@ class ExcelController extends Controller
         //         ]
         //     ]
         // );
+
+        $template_activesheet->getPageMargins()->setTop(0.5);
+        $template_activesheet->getPageMargins()->setRight(0.5);
+        $template_activesheet->getPageMargins()->setLeft(0.5);
+        $template_activesheet->getPageMargins()->setBottom(0.5);
 
         $xmlWriter = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($template_spreadsheet,'Mpdf');
         $xmlWriter->writeAllSheets();
@@ -184,11 +192,15 @@ class ExcelController extends Controller
         $this->validate($request, [
             'paydate' => 'required|max:50',
             'payriod' => 'required|max:50',
+            'payinc' => 'required|max:100',
+            'payman' => 'required|max:100',
             'master' => 'required|file|mimes:xls,xlsx'
         ]);
 
         $paydate = $request->input('paydate');
         $payriod = $request->input('payriod');
+        $payinc = $request->input('payinc');
+        $payman = $request->input('payman');
         $excel = $request->file('master');
 
         try {
@@ -239,7 +251,10 @@ class ExcelController extends Controller
                         'phealth' => $sheet[21],
                         'pagibig' => $sheet[22],
                         'hmo' => $sheet[23],
-                        'other' => $sheet[24]
+                        'other' => $sheet[24],
+
+                        'payinc' => $payinc,
+                        'payman' => $payman
                     );
 
                     //Save to model.

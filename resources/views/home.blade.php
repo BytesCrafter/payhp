@@ -66,26 +66,35 @@
 
                     <form action="{{url("generate")}}" method="post" enctype="multipart/form-data">
                         @csrf
-                        <fieldset>
+                        <fieldset class="row">
 
-                            <div class="form-group">
-                                <label for="payriod">Pay Period</label>
-                                <input type="text" required class="form-control" name="payriod" id="payriod"
-                                    placeholder="January 1 - 15">
+                            <div class="form-group col-6">
+                                <label for="payriod" style="text-align: left; display: block; margin-top: 10px;">Pay Period</label>
+                                <input type="text" class="form-control" name="payriod" id="payriod"
+                                    placeholder="January 1 - 15" required>
+                            </div>
+
+                            <div class="form-group col-6">
+                                <label for="paydate" style="text-align: left; display: block; margin-top: 10px;">Payment Date</label>
+                                <input type="text" class="form-control" name="paydate" id="paydate"
+                                    placeholder="January 25, 2022" required>
+                            </div>
+
+                            <div class="form-group col-6">
+                                <label for="payinc" style="text-align: left; display: block; margin-top: 10px;">Company Name</label>
+                                <input type="text" class="form-control" name="payinc" id="payinc"
+                                    placeholder="ABC Company Inc" required>
+                            </div>
+
+                            <div class="form-group col-6">
+                                <label for="payman" style="text-align: left; display: block; margin-top: 10px;">Head, HR Payroll</label>
+                                <input type="text" class="form-control" name="payman" id="payman"
+                                    placeholder="Maria Quizumbing" required>
                             </div>
 
                             <div class="form-group">
-                                <label for="paydate">Payment Date</label>
-                                <input type="text" required class="form-control" name="paydate" id="paydate"
-                                    placeholder="January 25, 2022">
-                            </div>
-
-                            <label>Select File to Upload <small
-                                    class="warning text-muted">{{__('Please upload only Zip (.zip) files')}}</small></label>
-
-                            <div class="form-group">
-                                <label for="master">Master File</label>
-                                <input type="file" required class="form-control" name="master" id="master">
+                                <label for="master" style="text-align: left; display: block; margin-top: 10px;">Populated Master File</label>
+                                <input type="file" class="form-control" name="master" id="master" required>
                                 @if ($errors->has('master'))
                                 <p class="text-right mb-0">
                                     <small class="danger text-muted"
@@ -93,6 +102,8 @@
                                 </p>
                                 @endif
                             </div>
+
+                            <label>Select File to Upload <small class="warning text-muted">{{__('Please upload only Zip (.zip) files')}}</small></label>
 
                             <div class="input-group-append" id="button-addon2"
                                 style="text-align: center; display: block; padding-top: 20px;">
@@ -133,25 +144,22 @@
                         <fieldset>
 
                             <div class="form-group">
-                                <label for="ccmail">Email CC <small
+                                <label for="ccmail" style="text-align: left; display: block; margin-top: 10px;">Email CC <small
                                         class="warning text-muted">{{__('Secparate multiple emails with a comma.')}}</small></label>
-                                <input type="text" required class="form-control" name="ccmail" id="ccmail"
+                                <input type="text" class="form-control" name="ccmail" id="ccmail"
+                                    placeholder="juan@example.com,mark@example.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bccmail" style="text-align: left; display: block; margin-top: 10px;">Email BCC <small
+                                        class="warning text-muted">{{__('Secparate multiple emails with a comma.')}}</small></label>
+                                <input type="text" class="form-control" name="bccmail" id="bccmail"
                                     placeholder="juan@example.com,mark@example.com">
                             </div>
 
                             <div class="form-group">
-                                <label for="bccmail">Email BCC <small
-                                        class="warning text-muted">{{__('Secparate multiple emails with a comma.')}}</small></label>
-                                <input type="text" required class="form-control" name="bccmail" id="bccmail"
-                                    placeholder="juan@example.com,mark@example.com">
-                            </div>
-
-                            <label>Select File to Upload <small
-                                    class="warning text-muted">{{__('Please upload only Excel (.xlsx or .xls) files')}}</small></label>
-
-                            <div class="form-group">
-                                <label for="zipfile">Zip File</label>
-                                <input type="file" required class="form-control" name="zipfile" id="zipfile">
+                                <label for="zipfile" style="text-align: left; display: block; margin-top: 10px;">Generated Zip File</label>
+                                <input type="file" class="form-control" name="zipfile" id="zipfile" required>
                                 @if ($errors->has('zipfile'))
                                 <p class="text-right mb-0">
                                     <small class="danger text-muted"
@@ -159,6 +167,8 @@
                                 </p>
                                 @endif
                             </div>
+
+                            <label>Select File to Upload <small class="warning text-muted">{{__('Please upload only Excel (.xlsx or .xls) files')}}</small></label>
 
                             <div class="input-group-append" id="button-addon2"
                                 style="text-align: center; display: block; padding-top: 20px;">
