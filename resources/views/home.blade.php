@@ -26,12 +26,13 @@
             <div class="card">
 
                 <div class="card-header bg-secondary">
-                    <h5 class="card-title text-center text-white">GETTING STARTED! Download the master file and populate
-                        with payroll data.</h5>
+                    <h5 class="card-title text-center text-white">GETTING STARTED! </h5>
+                    <label class="text-white">Download the master file and populate
+                        with payroll data.</label>
                 </div>
 
                 <div class="card-body" style="text-align: center">
-                    <div class="alert alert-info" role="alert">
+                    <div class="alert alert-info p-10" role="alert">
                         Please download this master file then populate with the data.
                     </div>
                     <a type="button" class="btn btn-success" href="download" target="_blank">Download Master File</a>
@@ -45,8 +46,9 @@
             <div class="card">
 
                 <div class="card-header bg-secondary">
-                    <h5 class="card-title text-center text-white">STEP 1: PAYSLIP GENERATOR - Upload the processed
-                        master file and click on bulk generate.</h5>
+                    <h5 class="card-title text-center text-white">STEP 1: PAYSLIP GENERATOR</h5>
+                    <label class="text-white p-2">Upload the processed
+                        master file and click on bulk generate.</label>
                 </div>
 
                 <div class="card-body">
@@ -93,7 +95,7 @@
                             </div>
 
                             <div class="input-group-append" id="button-addon2"
-                                style="text-align: right; display: block;">
+                                style="text-align: center; display: block; padding-top: 20px;">
                                 <button class="btn btn-primary square" type="submit"><i class="ft-upload mr-1"></i> Bulk
                                     Generate</button>
                             </div>
@@ -108,8 +110,9 @@
             <div class="card">
 
                 <div class="card-header bg-secondary">
-                    <h5 class="card-title text-center text-white">STEP 2: PAYSLIP MAILMAN - After cross-checking the
-                        generated payslip, use this to send payslip.</h5>
+                    <h5 class="card-title text-center text-white">STEP 2: PAYSLIP MAILMAN</h5>
+                    <label class="text-white p-2">After cross-checking the
+                        generated payslip, use this to send payslip.</label>
                 </div>
 
                 <div class="card-body">
@@ -158,8 +161,8 @@
                             </div>
 
                             <div class="input-group-append" id="button-addon2"
-                                style="text-align: right; display: block;">
-                                <button class="btn btn-warning square" type="submit"><i class="ft-upload mr-1"></i>
+                                style="text-align: center; display: block; padding-top: 20px;">
+                                <button class="btn btn-danger square" type="submit"><i class="ft-upload mr-1"></i>
                                     Schedule Mail</button>
                             </div>
 
@@ -172,5 +175,14 @@
     </div>
 
 </div>
+
+<footer class="navbar fixed-bottom" style="display: block;">
+    <div class="container" style="display: block;">
+        <p class="mt-2 mb-2 text-muted" style="display: grid;">
+            <label >ERPat PayHP &copy; <?= date("Y"); ?></label>
+            <label style="font-size: small;">Made Possible by <a href="http://bytescrafter.net">BytesCrafter</a></label>
+        </p>
+    </div>
+  </footer>
 
 @include('includes.footer')
