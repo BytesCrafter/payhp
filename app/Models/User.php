@@ -80,8 +80,8 @@ class User extends Authenticatable implements JWTSubject
     }
 
     public function get_access_info($user_id) {
-        return $this->where( "users.id", "=", $user_id )
-            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+        return $this->join('roles', 'users.role_id', '=', 'roles.id')
+            ->where( "users.id", "=", $user_id )
             ->select('users.id','users.uuid','users.email','users.user_type','users.is_admin','users.role_id','roles.permissions')
             ->first();
     }
