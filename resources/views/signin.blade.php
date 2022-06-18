@@ -61,7 +61,7 @@
         <form method="post" action="{{ url('/login') }}">
             {{ csrf_field() }}
             <img class="mb-2" src="assets/images/logo.png" alt="" height="49">
-            <h1 class="h6 mb-5 fw-normal">PayHP v0.1.0</h1>
+            <h1 class="h6 mb-5 fw-normal">PayHP {{config('app.version')}}</h1>
 
             <div class="form-floating mb-3">
                 <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
