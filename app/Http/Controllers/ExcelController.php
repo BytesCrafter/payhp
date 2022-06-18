@@ -36,7 +36,7 @@ class ExcelController extends Controller
         }
 
         $this->curUser = auth()->user();
-		if( $this->user_has_permission($this->curUser->id, 'can_use_payroll') !== TRUE ) {
+		if( $this->user_has_permission($this->curUser->id, 'can_use_payhp') !== TRUE ) {
             (new UserController())->logout();
             return redirect('signin');
         }

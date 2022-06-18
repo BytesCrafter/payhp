@@ -69,7 +69,7 @@ class UserController extends Controller
         }
 
         $this->curUser = auth()->user();
-		if( $this->user_has_permission($user->id, 'can_use_payroll') !== TRUE ) {
+		if( $this->user_has_permission($user->id, 'can_use_payhp') !== TRUE ) {
             return back()->with('error', 'Dont have permission!');
         }
 
