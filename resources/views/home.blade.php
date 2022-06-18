@@ -6,7 +6,7 @@
             aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <a class="navbar-brand" href="#">ERPat PayHP - Hi! {{ $curUser->first_name }}</a>
+        <a class="navbar-brand" href="#">PayHP {{config('app.version')}} - Hi! {{ $curUser->first_name }}</a>
         <div class="collapse d-flex" id="navbarTogglerDemo03">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
@@ -16,10 +16,7 @@
         </div>
     </div>
 </nav>
-{{-- <div class="container">
-                Test 1: {{$curUser}}
-</div> --}}
-<div class="container">
+<div class="container" style="margin-bottom: 100px;">
 
     <div class="row justify-content-centre" style="margin-top: 30px;">
         <div class="col-md-12">
@@ -41,8 +38,8 @@
         </div>
     </div>
 
-    <div class="row justify-content-centre" style="margin-top: 30px;">
-        <div class="col-md-6">
+    <div class="row justify-content-centre">
+        <div class="col-md-6" style="margin-top: 30px;">
             <div class="card">
 
                 <div class="card-header bg-secondary">
@@ -117,7 +114,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6" style="margin-top: 30px;">
             <div class="card">
 
                 <div class="card-header bg-secondary">
@@ -186,13 +183,13 @@
 
 </div>
 
-<footer class="navbar fixed-bottom" style="display: block;">
+<footer class="navbar fixed-bottom bg-dark" style="display: block;">
     <div class="container" style="display: block;">
-        <p class="mt-2 mb-2 text-muted" style="display: grid;">
+        <p class="mt-1 mb-1 text-muted" style="display: grid;">
             <label >ERPat PayHP &copy; <?= date("Y"); ?></label>
-            <label style="font-size: small;">Made Possible by <a href="http://bytescrafter.net">BytesCrafter</a></label>
+            <label style="font-size: small;">Made Possible by <a href="http://bytescrafter.net" style="color: #b7b7b7 !important">BytesCrafter</a></label>
         </p>
     </div>
-  </footer>
+</footer>
 
 @include('includes.footer')
