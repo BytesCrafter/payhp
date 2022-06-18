@@ -68,9 +68,8 @@ class UserController extends Controller
             return back()->with('error', 'User not found!');
         }
 
-        $access = (new User())->get_access_info( $user->id );
-        $access->permissions = unserialize( $access->permissions );
-        if( !isset($access->permissions['can_use_payroll']) && !$access->permissions['can_use_payroll'] ) {
+        $this->curUser = auth()->user();
+		if( $this->user_has_permission($user->id, 'can_use_payroll') !== TRUE ) {
             return back()->with('error', 'Dont have permission!');
         }
 
