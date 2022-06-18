@@ -297,6 +297,9 @@ class ExcelController extends Controller
                         'hmo' => $sheet[23],
                         'other' => $sheet[24],
 
+                        'payinc' => $payinc,
+                        'payman' => $payman,
+
                         'generated_by' => NULL, //TODO
                         'status' => $sheet[0] ? '1':'0'
                     ]);
@@ -322,33 +325,96 @@ class ExcelController extends Controller
     }
 
     function sendTestMail(Request $request) {
-
-        //https://www.zealousweb.com/3-easy-steps-to-implement-laravel-queue/
-        //PayslipJob::dispatch($options)->delay(now()->addMinutes(10));
-
-        $emailJob = (new PayslipJob())->setPayslip(new Payslip(array(
-            "email" => "bytescrafter@gmail.com",
+        //TODO: Temporary
+        $data = array(
+            "email" => "caezarjepoy@gmail.com",
             "subject" => "Oh hello Mark!",
             "body" => "Personalized Message from Script",
             "attachments" => [storage_path('system')."/master.xlsx", storage_path('system')."/template.xls"],
             "cc" => ["cc@bytescrafter.net"],
             "bcc" => ["bcc@bytescrafter.net"],
             "replyto" => ["replyto@bytescrafter.net"]
-        )));
+        );
+
+        $this->sendMail( $data );
+    }
+
+    protected function sendMail( array $data, $company_name = "ABC Company Inc", $company_site = "http://bytescrafter.net") {
+        $emailJob = (new PayslipJob())->setPayslipData(new Payslip($data), $company_name, $company_site );
         dispatch($emailJob);
+    }
+
+    protected function explodeToList( $string, $separator = ",", $checkMail = false ) {
+        $exploded = explode($separator, $string);
+        $list = [];
+        foreach($exploded as $item) {
+            if($checkMail && filter_var($item, FILTER_VALIDATE_EMAIL)) {
+                $list[] = $item;
+            } else {
+                $list[] = $item;
+            }
+        }
+        return $list;
     }
 
     function bulkSend(Request $request){
 
+        $this->validate($request, [
+            'ccmail' => 'max:200',
+            'bccmail' => 'required|max:200',
+            'replyto' => 'required|max:100',
+            'payriod' => 'required|max:50',
+            'zipfile' => 'required|file|mimes:zip'
+        ]);
+
+        $ccmail = $request->input('ccmail');
+        $bccmail = $request->input('bccmail');
+        $replyto = $request->input('replyto');
+        $payriod = $request->input('payriod');
+        $zipfile = $request->file('zipfile');
+
         //Received ccmail and zip file.
+        $zip_filepath = $zipfile->getRealPath();
+        $zipArchieve = new \ZipArchive();
+        $zipArchieve->open($zip_filepath);
 
-        //Unzip to temporary location.
+        if ( $zipArchieve->open($zip_filepath) !== TRUE) {
+            return back()->withErrors('Zip file cannot be open.');
+        }
 
-        //Queue all payslip for sending.
+        $group_id = Uuid::uuid4()->toString();
+        $dirpath = $this->createDir('app/mailman/'.$group_id);
+        $zipArchieve->extractTo($dirpath);
 
-        //Delete all temporary files and zip.
+        $filesInFolder = \File::files( $dirpath );
+        foreach($filesInFolder as $path) {
+            $file = pathinfo($path);
 
-        //Return all emails successfully send.
+            $ccs = $this->explodeToList($ccmail, ",", true);
+            $bccs = $this->explodeToList($bccmail, ",", true);
+            $replytos = $this->explodeToList($replyto, ",", true);
+
+            //TODO:
+            $company_domain = env("ERPAT_COMPANY_SITE", 'bytescrafter.net');
+            $company_name = env("ERPAT_COMPANY_NAME", 'ABC Company Inc.');
+
+            $data = array(
+                "email" => $file['filename']."@".$company_domain,
+                "subject" => "Payslip for ".$payriod,
+                "payriod" => $payriod,
+                "fullname" => $file['filename'],
+                //"body" => "",
+                "attachments" => [$dirpath.$file['filename'].".".$file['extension']],
+                "cc" => $ccs,
+                "bcc" => $bccs,
+                "replyto" => $replytos
+            );
+            $this->sendMail( $data, $company_name, "http://".$company_domain );
+        }
+
+        $zipArchieve->close();
+
+        return back()->withSuccess('Great! All payslip had been enqueque.');
    }
 
 }

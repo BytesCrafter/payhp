@@ -17,10 +17,14 @@ class PayslipJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected $company_name = "";
+    protected $company_site = "";
     protected Payslip $payslip;
 
-    public function setPayslip(Payslip $payslip) {
+    public function setPayslipData(Payslip $payslip, $company_name = "ABC Company Inc", $company_site = "http://bytescrafter.net") {
         $this->payslip = $payslip;
+        $this->company_name = $company_name;
+        $this->company_site = $company_site;
         return $this;
     }
 
@@ -42,7 +46,7 @@ class PayslipJob implements ShouldQueue
     public function handle()
     {
         $email = new PayslipEmail();
-        $email->setPayslip($this->payslip);
+        $email->setPayslip($this->payslip, $this->company_name, $this->company_site);
 
         for($i=0; $i<count($this->payslip->cc); $i++) {
             $email->cc( $this->payslip->cc[$i] );

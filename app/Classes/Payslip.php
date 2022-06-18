@@ -3,6 +3,9 @@
 
     class Payslip {
 
+        public $fullname = "";
+        public $payriod = "";
+
         public $email = "";
         public $subject = "";
         public $cc = [];
@@ -15,6 +18,9 @@
         {
             if($payslip == null)
                 return;
+
+            $this->fullname = isset($payslip["fullname"])?$payslip["fullname"]:"";
+            $this->payriod = isset($payslip["payriod"])?$payslip["payriod"]:"";
 
             $this->email = isset($payslip["email"])?$payslip["email"]:"";
             $this->subject = isset($payslip["subject"])?$payslip["subject"]:"";

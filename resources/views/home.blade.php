@@ -77,13 +77,13 @@
                                     placeholder="January 25, 2022" required>
                             </div>
 
-                            <div class="form-group col-6">
+                            <div class="form-group">
                                 <label for="payinc" style="text-align: left; display: block; margin-top: 10px;">Company Name</label>
                                 <input type="text" class="form-control" name="payinc" id="payinc"
                                     placeholder="ABC Company Inc" required>
                             </div>
 
-                            <div class="form-group col-6">
+                            <div class="form-group">
                                 <label for="payman" style="text-align: left; display: block; margin-top: 10px;">Head, HR Payroll</label>
                                 <input type="text" class="form-control" name="payman" id="payman"
                                     placeholder="Maria Quizumbing" required>
@@ -136,22 +136,35 @@
 
                     @endif
 
-                    <form action="{{url("send")}}" method="post" enctype="multipart/form-data">
+                    <form action="{{url("bulkSend")}}" method="post" enctype="multipart/form-data">
                         @csrf
-                        <fieldset>
+                        <fieldset class="row">
 
-                            <div class="form-group">
+                            <div class="form-group col-8">
                                 <label for="ccmail" style="text-align: left; display: block; margin-top: 10px;">Email CC <small
                                         class="warning text-muted">{{__('Secparate multiple emails with a comma.')}}</small></label>
                                 <input type="text" class="form-control" name="ccmail" id="ccmail"
-                                    placeholder="juan@example.com,mark@example.com" required>
+                                    placeholder="juan@example.com,mark@example.com">
+                            </div>
+
+                            <div class="form-group col-4">
+                                <label for="payriod" style="text-align: left; display: block; margin-top: 10px;">Pay Period</label>
+                                <input type="text" class="form-control" name="payriod" id="payriod"
+                                    placeholder="January 1 - 15" required>
                             </div>
 
                             <div class="form-group">
                                 <label for="bccmail" style="text-align: left; display: block; margin-top: 10px;">Email BCC <small
                                         class="warning text-muted">{{__('Secparate multiple emails with a comma.')}}</small></label>
                                 <input type="text" class="form-control" name="bccmail" id="bccmail"
-                                    placeholder="juan@example.com,mark@example.com">
+                                    placeholder="juan@example.com,mark@example.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="replyto" style="text-align: left; display: block; margin-top: 10px;">Reply To <small
+                                        class="warning text-muted">{{__('Secparate multiple emails with a comma.')}}</small></label>
+                                <input type="text" class="form-control" name="replyto" id="replyto"
+                                    placeholder="juan@example.com,mark@example.com" required>
                             </div>
 
                             <div class="form-group">
@@ -165,10 +178,17 @@
                                 @endif
                             </div>
 
-                            <label>Select File to Upload <small class="warning text-muted">{{__('Please upload only Excel (.xlsx or .xls) files')}}</small></label>
+                            <label>Select File to Upload <small class="warning text-muted">{{__('Please upload only Zip (.zip) files')}}</small></label>
 
-                            <div class="input-group-append" id="button-addon2"
-                                style="text-align: center; display: block; padding-top: 20px;">
+                            <div class="input-group-append" id="button-addon2" style="text-align: center; display: block; padding-top: 20px;">
+                                @if ($message = Session::get('error'))
+                                <div class="checkbox mb-3">
+                                        <div class="alert alert-warning alert-block">
+                                        <strong>{{$message}}</strong>
+                                        {{-- <button type="button" class="close" data-dismiss="alert">x</button> --}}
+                                        </div>
+                                    </div>
+                                @endif
                                 <button class="btn btn-danger square" type="submit"><i class="ft-upload mr-1"></i>
                                     Schedule Mail</button>
                             </div>
