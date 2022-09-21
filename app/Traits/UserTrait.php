@@ -19,9 +19,19 @@
 
 		public function user_has_permission($user_id, $permission) {
 			$access = (new User())->get_access_info( $user_id );
-			$permission_list = unserialize( $access->permissions );
+            if( isset($access->permissions) ) {
+                $permission_list = unserialize( $access->permissions );
+            } else {
+                $permission_list = array();
+            }
 
-			if( $access->is_admin || $this->get_array_value($permission_list, $permission) ){
+			if( isset($access->is_admin) ) {
+                $is_admin = $access->is_admin;
+            } else {
+                $is_admin = false;
+            }
+
+			if( $is_admin || $this->get_array_value($permission_list, $permission) ){
 				return true;
 			}
 
