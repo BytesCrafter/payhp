@@ -112,9 +112,13 @@ class ExcelController extends Controller
                 ->add_deduction("phealth", $paydata['phealth']) //INPUT
                 ->add_deduction("pagibig", $paydata['pagibig']) //INPUT
                 ->add_deduction("hmo", $paydata['hmo']) //INPUT
+                ->add_deduction("sss_amt", $paydata['sss_amt']) //INPUT
+                ->add_deduction("hdmf_amt", $paydata['hdmf_amt']) //INPUT
                 ->add_deduction("other", $paydata['other']); //INPUT
             $data["total_deductions"] = round($payslip->total_deductions(), 2);
-            $data["hmo_other"] = $paydata['hmo'] + $paydata['other'];
+
+            $data["sss_loan"] = (int)$paydata['sss_amt'] > 0?"(".$paydata['sss_term'].") ".number_format($paydata['sss_amt'], 2):"0.00";
+            $data["hdmf_loan"] = (int)$paydata['hdmf_amt'] > 0?"(".$paydata['hdmf_term'].") ".number_format($paydata['hdmf_amt'], 2):"0.00";
 
             $data["net_pay"] = round($data["gross_pay"] - $data["total_deductions"], 2);
 
@@ -131,6 +135,7 @@ class ExcelController extends Controller
         $template_activesheet->setCellValue('E5', "Pay Period ".$payriod);
         $template_activesheet->setCellValue('E7', $data['fullname']);
         $template_activesheet->setCellValue('E8', $compute['basic_salary']);
+        $template_activesheet->setCellValue('E9', $data['leave_credit']);
 
         $template_activesheet->setCellValue('H7', $data['title']);
         $template_activesheet->setCellValue('H8', $data['department']);
@@ -148,20 +153,24 @@ class ExcelController extends Controller
         $template_activesheet->setCellValue('H21', $data['sss']);
         $template_activesheet->setCellValue('H22', $data['phealth']);
         $template_activesheet->setCellValue('H23', $data['pagibig']);
-        $template_activesheet->setCellValue('H24', $compute['hmo_other']);
+        $template_activesheet->setCellValue('H24', $data['hmo']);
 
-        $template_activesheet->setCellValue('F26', $compute['gross_pay']);
-        $template_activesheet->setCellValue('H26', $compute['total_deductions']);
-        $template_activesheet->setCellValue('F28', $compute['net_pay']);
-        $template_activesheet->setCellValue('F29', (new AmountWords())->convertNumber($compute["net_pay"]));
+        $template_activesheet->setCellValue('H25', $compute['sss_loan']);
+        $template_activesheet->setCellValue('H26', $compute['hdmf_loan']);
+        $template_activesheet->setCellValue('H27', $data['other']);
 
-        $template_activesheet->setCellValue('E27', $paydate);
-        $template_activesheet->setCellValue('E28', $data['bankname']);
-        $template_activesheet->setCellValue('E29', $data['fullname']);
-        $template_activesheet->setCellValue('E30', $data['banknum']);
+        $template_activesheet->setCellValue('F29', $compute['gross_pay']);
+        $template_activesheet->setCellValue('H29', $compute['total_deductions']);
+        $template_activesheet->setCellValue('F31', $compute['net_pay']);
+        $template_activesheet->setCellValue('F32', (new AmountWords())->convertNumber($compute["net_pay"]));
+
+        $template_activesheet->setCellValue('E30', $paydate);
+        $template_activesheet->setCellValue('E31', $data['bankname']);
+        $template_activesheet->setCellValue('E32', $data['fullname']);
+        $template_activesheet->setCellValue('E33', $data['banknum']);
 
         $template_activesheet->setCellValue('C3', $data['payinc']);
-        $template_activesheet->setCellValue('F32', $data['payman']);
+        $template_activesheet->setCellValue('F35', $data['payman']);
 
         // $template_spreadsheet->getDefaultStyle()->applyFromArray(
         //     [
@@ -209,7 +218,7 @@ class ExcelController extends Controller
             $datasheet      = $activesheet->toArray();
 
             $counter       = 1;
-            $startRow       = 4;
+            $startRow       = 5;
 
             $group_id = Uuid::uuid4()->toString();
             $dirpath = $this->createDir('app/payroll/'.$group_id);
@@ -221,6 +230,7 @@ class ExcelController extends Controller
 
             foreach($datasheet as $sheet) {
                 if($counter >= $startRow && $sheet[0] == 'x') {
+
                     $current = array(
                         'enable' => $sheet[0],
                         'fullname' => $sheet[1],
@@ -236,9 +246,9 @@ class ExcelController extends Controller
                         'monthly' => $sheet[8],
                         'allowance' => $sheet[9],
                         'deduction' => $sheet[10],
+
                         'incentive' => $sheet[11],
                         'nightdiff' => $sheet[12],
-
                         'reghdpay' => $sheet[13],
                         'spchdpay' => $sheet[14],
                         'regot' => $sheet[15],
@@ -253,6 +263,13 @@ class ExcelController extends Controller
                         'hmo' => $sheet[23],
                         'other' => $sheet[24],
 
+                        'sss_amt' => $sheet[25],
+                        'sss_term' => $sheet[26],
+                        'hdmf_amt' => $sheet[27],
+                        'hdmf_term' => $sheet[28],
+
+                        'leave_credit' => $sheet[29],
+
                         'payinc' => $payinc,
                         'payman' => $payman
                     );
@@ -263,7 +280,6 @@ class ExcelController extends Controller
                         'uuid' => Uuid::uuid4()->toString(),
                         'group_id' => $group_id,
 
-                        'fullname' => $sheet[1],
                         'fullname' => $sheet[1],
                         'email' => $sheet[2],
 
@@ -296,6 +312,13 @@ class ExcelController extends Controller
                         'pagibig' => $sheet[22],
                         'hmo' => $sheet[23],
                         'other' => $sheet[24],
+
+                        'sss_amt' => $sheet[25],
+                        'sss_term' => $sheet[26],
+                        'hdmf_amt' => $sheet[27],
+                        'hdmf_term' => $sheet[28],
+
+                        'leave_credit' => $sheet[29],
 
                         'payinc' => $payinc,
                         'payman' => $payman,
