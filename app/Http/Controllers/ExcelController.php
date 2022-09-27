@@ -87,7 +87,7 @@ class ExcelController extends Controller
 
             //Compute all additionals.
             $payslip->add_additional("allowance", $payslip->monthly_allowance/2)
-                ->add_additional("hourlynd", $payslip->hourly_nightdiff*($payslip->hourly_rate()*0.1))
+                ->add_additional("hourlynd", $payslip->hourly_nightdiff)//*($payslip->hourly_rate()*0.1))
                 ->add_additional("regularhd", $payslip->hourly_rate()*$payslip->hourly_regholiday)
                 ->add_additional("specialhd", $payslip->hourly_rate()*$payslip->hourly_speholiday*0.3)
                 ->add_additional("incentive", $payslip->incentives)
@@ -98,7 +98,7 @@ class ExcelController extends Controller
             //$data["additional"] = round($payslip->total_additional(), 2);
 
             $data["allowance"] = $payslip->monthly_allowance/2;
-            $data["hourlynd"] = $payslip->hourly_nightdiff*($payslip->hourly_rate()*0.1);
+            $data["hourlynd"] = $payslip->hourly_nightdiff;//*($payslip->hourly_rate()*0.1);
             $data["regularhd"] = $payslip->hourly_rate()*$payslip->hourly_regholiday;
             $data["specialhd"] = $payslip->hourly_rate()*$payslip->hourly_speholiday*0.3;
             $data["overtime"] = ($payslip->hourly_rate()*$payslip->regular_ot*1.25) + ($payslip->hourly_rate()*$payslip->restday_ot*1.30) + ($payslip->hourly_rate()*$payslip->reg_holiday_ot*2.60) + ($payslip->hourly_rate()*$payslip->spe_holiday_ot*1.69);
