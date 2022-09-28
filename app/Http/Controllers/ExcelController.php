@@ -80,13 +80,18 @@ class ExcelController extends Controller
             $payslip->add_reg_holiday_ot($paydata['reghdot']); //INPUT
             $payslip->add_spe_holiday_ot($paydata['spchdot']); //INPUT
 
+            $data["unworked_hours"] = "";
+            if((int)$paydata['deduction'] > 0) {
+                $data["unworked_hours"] = number_format(($paydata['deduction']*$payslip->hourly_rate()), 2)." (".number_format($paydata['deduction'], 2)."hrs)";
+            }
+
             //Add absent per hours.
             $payslip->add_hourly_deductions($paydata['deduction']); //INPUT
             //$data["deduct_pay"] = $payslip->hourly_deductions();
             $data["basic_rate"] = $payslip->basic_rate();
 
             //Compute all additionals.
-            $payslip->add_additional("allowance", $payslip->monthly_allowance/2)
+            $payslip->add_additional("allowance", $payslip->monthly_allowance)///2)
                 ->add_additional("hourlynd", $payslip->hourly_nightdiff)//*($payslip->hourly_rate()*0.1))
                 ->add_additional("regularhd", $payslip->hourly_rate()*$payslip->hourly_regholiday)
                 ->add_additional("specialhd", $payslip->hourly_rate()*$payslip->hourly_speholiday*0.3)
@@ -97,7 +102,7 @@ class ExcelController extends Controller
                 ->add_additional("sce_holiday_ot", $payslip->hourly_rate()*$payslip->spe_holiday_ot*1.69);
             //$data["additional"] = round($payslip->total_additional(), 2);
 
-            $data["allowance"] = $payslip->monthly_allowance/2;
+            $data["allowance"] = $payslip->monthly_allowance;//2;
             $data["hourlynd"] = $payslip->hourly_nightdiff;//*($payslip->hourly_rate()*0.1);
             $data["regularhd"] = $payslip->hourly_rate()*$payslip->hourly_regholiday;
             $data["specialhd"] = $payslip->hourly_rate()*$payslip->hourly_speholiday*0.3;
@@ -139,7 +144,7 @@ class ExcelController extends Controller
 
         $template_activesheet->setCellValue('H7', $data['title']);
         $template_activesheet->setCellValue('H8', $data['department']);
-        $template_activesheet->setCellValue('H9', $data['directorate']);
+        $template_activesheet->setCellValue('H9', $compute['unworked_hours']);
 
         $template_activesheet->setCellValue('F13', $compute['basic_rate']);
         $template_activesheet->setCellValue('F14', $compute['allowance']);
@@ -149,15 +154,15 @@ class ExcelController extends Controller
         $template_activesheet->setCellValue('F18', $compute['overtime']);
         $template_activesheet->setCellValue('F19', $compute['others']);
 
-        $template_activesheet->setCellValue('H20', $data['tax']);
-        $template_activesheet->setCellValue('H21', $data['sss']);
-        $template_activesheet->setCellValue('H22', $data['phealth']);
-        $template_activesheet->setCellValue('H23', $data['pagibig']);
-        $template_activesheet->setCellValue('H24', $data['hmo']);
+        $template_activesheet->setCellValue('H20', number_format($data['tax']), 2);
+        $template_activesheet->setCellValue('H21', number_format($data['sss']), 2);
+        $template_activesheet->setCellValue('H22', number_format($data['phealth']), 2);
+        $template_activesheet->setCellValue('H23', number_format($data['pagibig']), 2);
+        $template_activesheet->setCellValue('H24', number_format($data['hmo']), 2);
 
         $template_activesheet->setCellValue('H25', $compute['sss_loan']);
         $template_activesheet->setCellValue('H26', $compute['hdmf_loan']);
-        $template_activesheet->setCellValue('H27', $data['other']);
+        $template_activesheet->setCellValue('H27', number_format($data['other']), 2);
 
         $template_activesheet->setCellValue('F29', $compute['gross_pay']);
         $template_activesheet->setCellValue('H29', $compute['total_deductions']);
