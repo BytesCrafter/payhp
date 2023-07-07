@@ -15,6 +15,7 @@ use Ramsey\Uuid\Uuid;
 use App\Jobs\PayslipJob;
 use App\Libraries\AmountWords;
 use App\Traits\UserTrait;
+use App\Traits\CalcTrait;
 use Illuminate\Support\Facades\Auth;
 USE App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -23,10 +24,10 @@ use App\Http\Controllers\UserController;
 class ExcelController extends Controller
 {
     use UserTrait;
+    use CalcTrait;
 
     protected $curUser = null;
     public function __construct() {
-        //$this->middleware('user.permit');
         $this->curUser = auth()->user();
     }
 
@@ -42,8 +43,7 @@ class ExcelController extends Controller
         }
 
         return view('home')
-            ->with('curUser',  Auth::user())
-            ->with('test',  'hello world');
+            ->with('curUser',  Auth::user());
     }
 
     function downloadMaster() {
@@ -154,15 +154,15 @@ class ExcelController extends Controller
         $template_activesheet->setCellValue('F18', $compute['overtime']);
         $template_activesheet->setCellValue('F19', $compute['others']);
 
-        $template_activesheet->setCellValue('H20', number_format($data['tax']), 2);
-        $template_activesheet->setCellValue('H21', number_format($data['sss']), 2);
-        $template_activesheet->setCellValue('H22', number_format($data['phealth']), 2);
-        $template_activesheet->setCellValue('H23', number_format($data['pagibig']), 2);
-        $template_activesheet->setCellValue('H24', number_format($data['hmo']), 2);
+        $template_activesheet->setCellValue('H20', $this->decimal_format($data['tax']));
+        $template_activesheet->setCellValue('H21', $this->decimal_format($data['sss']));
+        $template_activesheet->setCellValue('H22', $this->decimal_format($data['phealth']));
+        $template_activesheet->setCellValue('H23', $this->decimal_format($data['pagibig']));
+        $template_activesheet->setCellValue('H24', $this->decimal_format($data['hmo']));
 
         $template_activesheet->setCellValue('H25', $compute['sss_loan']);
         $template_activesheet->setCellValue('H26', $compute['hdmf_loan']);
-        $template_activesheet->setCellValue('H27', number_format($data['other']), 2);
+        $template_activesheet->setCellValue('H27', $this->decimal_format($data['other']));
 
         $template_activesheet->setCellValue('F29', $compute['gross_pay']);
         $template_activesheet->setCellValue('H29', $compute['total_deductions']);
@@ -197,6 +197,7 @@ class ExcelController extends Controller
         $xmlWriter->writeAllSheets();
         //$xmlWriter->setFooter("AHM Outsourcing Inc");
         $username = substr($data['email'], 0, strpos($data['email'], "@"));
+		$username = str_replace(' ', '', $username);
         $xmlWriter->save( $dirpath.$username.'.pdf' );
         return $username;
     }
@@ -208,7 +209,7 @@ class ExcelController extends Controller
             'payriod' => 'required|max:50',
             'payinc' => 'required|max:100',
             'payman' => 'required|max:100',
-            'master' => 'required|file|mimes:xls,xlsx'
+            'master' => 'required|file|mimes:xlsx'
         ]);
 
         $paydate = $request->input('paydate');
@@ -228,13 +229,14 @@ class ExcelController extends Controller
             $group_id = Uuid::uuid4()->toString();
             $dirpath = $this->createDir('app/payroll/'.$group_id);
 
-            $zip_name = "Payroll - ".$payriod;
+			$zip_name = $excel->getClientOriginalName();
+            $zip_name = str_replace('.xlsx', '', $zip_name);
             $zip_filepath = $dirpath.$zip_name.'.zip';
             $zipArchieve = new \ZipArchive();
             $zipArchieve->open($zip_filepath, \ZipArchive::CREATE || \ZipArchive::OVERWRITE);
 
             foreach($datasheet as $sheet) {
-                if($counter >= $startRow && $sheet[0] == 'x') {
+                if($counter >= $startRow && isset($sheet[0])) {
 
                     $current = array(
                         'enable' => $sheet[0],
@@ -248,92 +250,93 @@ class ExcelController extends Controller
                         'bankname' => $sheet[6],
                         'banknum' => $sheet[7],
 
-                        'monthly' => $sheet[8],
-                        'allowance' => $sheet[9],
-                        'deduction' => $sheet[10],
+                        'monthly' => $this->decimal_format( $sheet[8] ),
+                        'allowance' => $this->decimal_format( $sheet[9] ),
+                        'deduction' => $this->decimal_format( $sheet[10] ),
 
-                        'incentive' => $sheet[11],
-                        'nightdiff' => $sheet[12],
-                        'reghdpay' => $sheet[13],
-                        'spchdpay' => $sheet[14],
-                        'regot' => $sheet[15],
-                        'rstot' => $sheet[16],
-                        'reghdot' => $sheet[17],
-                        'spchdot' => $sheet[18],
+                        'incentive' => $this->decimal_format( $sheet[11] ),
+                        'nightdiff' => $this->decimal_format( $sheet[12] ),
+                        'reghdpay' => $this->decimal_format( $sheet[13] ),
+                        'spchdpay' => $this->decimal_format( $sheet[14] ),
+                        'regot' => $this->decimal_format( $sheet[15] ),
+                        'rstot' => $this->decimal_format( $sheet[16] ),
+                        'reghdot' => $this->decimal_format( $sheet[17] ),
+                        'spchdot' => $this->decimal_format( $sheet[18] ),
 
-                        'tax' => $sheet[19],
-                        'sss' => $sheet[20],
-                        'phealth' => $sheet[21],
-                        'pagibig' => $sheet[22],
-                        'hmo' => $sheet[23],
-                        'other' => $sheet[24],
+                        'tax' => $this->decimal_format( $sheet[19] ),
+                        'sss' => $this->decimal_format( $sheet[20] ),
+                        'phealth' => $this->decimal_format( $sheet[21] ),
+                        'pagibig' => $this->decimal_format( $sheet[22] ),
+                        'hmo' => $this->decimal_format( $sheet[23] ),
+                        'other' => $this->decimal_format( $sheet[24] ),
 
-                        'sss_amt' => $sheet[25],
+                        'sss_amt' => $this->decimal_format( $sheet[25] ),
                         'sss_term' => $sheet[26],
-                        'hdmf_amt' => $sheet[27],
+                        'hdmf_amt' => $this->decimal_format( $sheet[27] ),
                         'hdmf_term' => $sheet[28],
 
-                        'leave_credit' => $sheet[29],
+                        'leave_credit' => $this->decimal_format( $sheet[29] ),
 
                         'payinc' => $payinc,
                         'payman' => $payman
                     );
 
-                    //Save to model.
-                    $payslip = new Payslip();
-                    $insertid = $payslip->store([
-                        'uuid' => Uuid::uuid4()->toString(),
-                        'group_id' => $group_id,
+                    // //Save to model.
+                    // $payslip = new Payslip();
+                    // $insertid = $payslip->store([
+                    //     'uuid' => Uuid::uuid4()->toString(),
+                    //     'group_id' => $group_id,
 
-                        'fullname' => $sheet[1],
-                        'email' => $sheet[2],
+                    //     'fullname' => $sheet[1],
+                    //     'email' => $sheet[2],
 
-                        'payriod' => $payriod,
-                        'paydate' => $paydate,
+                    //     'payriod' => $payriod,
+                    //     'paydate' => $paydate,
 
-                        'title' => $sheet[3],
-                        'department' => $sheet[4],
-                        'directorate' => $sheet[5],
+                    //     'title' => $sheet[3],
+                    //     'department' => $sheet[4],
+                    //     'directorate' => $sheet[5],
 
-                        'bankname' => $sheet[6],
-                        'banknum' => $sheet[7],
+                    //     'bankname' => $sheet[6],
+                    //     'banknum' => $sheet[7],
 
-                        'monthly' => $sheet[8],
-                        'allowance' => $sheet[9],
-                        'deduction' => $sheet[10],
-                        'incentive' => $sheet[11],
-                        'nightdiff' => $sheet[12],
+                    //     'monthly' => $sheet[8],
+                    //     'allowance' => $sheet[9],
+                    //     'deduction' => $sheet[10],
+                    //     'incentive' => $sheet[11],
+                    //     'nightdiff' => $sheet[12],
 
-                        'reghdpay' => $sheet[13],
-                        'spchdpay' => $sheet[14],
-                        'regot' => $sheet[15],
-                        'rstot' => $sheet[16],
-                        'reghdot' => $sheet[17],
-                        'spchdot' => $sheet[18],
+                    //     'reghdpay' => $sheet[13],
+                    //     'spchdpay' => $sheet[14],
+                    //     'regot' => $sheet[15],
+                    //     'rstot' => $sheet[16],
+                    //     'reghdot' => $sheet[17],
+                    //     'spchdot' => $sheet[18],
 
-                        'tax' => $sheet[19],
-                        'sss' => $sheet[20],
-                        'phealth' => $sheet[21],
-                        'pagibig' => $sheet[22],
-                        'hmo' => $sheet[23],
-                        'other' => $sheet[24],
+                    //     'tax' => $sheet[19],
+                    //     'sss' => $sheet[20],
+                    //     'phealth' => $sheet[21],
+                    //     'pagibig' => $sheet[22],
+                    //     'hmo' => $sheet[23],
+                    //     'other' => $sheet[24],
 
-                        'sss_amt' => $sheet[25],
-                        'sss_term' => $sheet[26],
-                        'hdmf_amt' => $sheet[27],
-                        'hdmf_term' => $sheet[28],
+                    //     'sss_amt' => $sheet[25],
+                    //     'sss_term' => $sheet[26],
+                    //     'hdmf_amt' => $sheet[27],
+                    //     'hdmf_term' => $sheet[28],
 
-                        'leave_credit' => $sheet[29],
+                    //     'leave_credit' => $sheet[29],
 
-                        'payinc' => $payinc,
-                        'payman' => $payman,
+                    //     'payinc' => $payinc,
+                    //     'payman' => $payman,
 
-                        'generated_by' => NULL, //TODO
-                        'status' => $sheet[0] ? '1':'0'
-                    ]);
+                    //     'generated_by' => NULL, //TODO
+                    //     'status' => $sheet[0] ? '1':'0'
+                    // ]);
 
                     $filename = $this->save_payslip($current, $paydate, $payriod, $dirpath, $group_id);
                     $filename = $filename.".pdf"; //add the pdf extention.
+					$filename = str_replace(' ', '', $filename);
                     $zipArchieve->addFile( $dirpath.$filename, $filename );
                 }
                 $counter ++;
@@ -426,11 +429,12 @@ class ExcelController extends Controller
             $company_domain = env("ERPAT_COMPANY_SITE", 'bytescrafter.net');
             $company_name = env("ERPAT_COMPANY_NAME", 'ABC Company Inc.');
 
+            $username = str_replace(' ', '', $file['filename']);
             $data = array(
-                "email" => $file['filename']."@".$company_domain,
+                "email" => $username."@".$company_domain,
                 "subject" => "Payslip for ".$payriod,
                 "payriod" => $payriod,
-                "fullname" => $file['filename'],
+                "fullname" => strtoupper($file['filename']),
                 //"body" => "",
                 "attachments" => [$dirpath.$file['filename'].".".$file['extension']],
                 "cc" => $ccs,
